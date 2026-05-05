@@ -31,3 +31,50 @@ Dalam proses penjadwalan ulang perkuliahan, terdapat beberapa ketentuan yang har
 5. Setiap perubahan jadwal harus mendapatkan persetujuan dari pihak terkait (misalnya BAAK atau admin akademik).
 6. Sistem harus memastikan bahwa tidak terjadi double booking pada ruangan yang sama.
 7. Perubahan jadwal harus tetap mempertimbangkan efisiensi waktu dan lokasi agar tidak merugikan pihak lain.
+
+## Input
+```bash
+lecturer-add#L001#Dr. Andi#andi@kampus.ac.id#Informatics
+lecturer-add#L002#Dr. Budi#budi@kampus.ac.id#Informatics
+
+course-add#IF101#Pemrograman Berorientasi Objek#3#Informatics
+
+room-add#R101#GedungA#40
+room-add#R102#GedungA#40
+
+schedule-add#SCH01#IF101#A#L001#Monday#08:00#R101
+schedule-add#SCH02#IF101#B#L002#Monday#10:00#R102
+
+reschedule-request#REQ01#SCH01#Monday#10:00#R102#2024/2025#odd#MENUNGGU
+reschedule-request#REQ02#SCH02#Monday#08:00#R101#2024/2025#odd#MENUNGGU
+
+request-detail#REQ01
+request-detail#REQ02
+---
+
+validation-process
+
+request-detail#REQ01
+request-detail#REQ02
+---
+
+approve-request#REQ01
+approve-request#REQ02
+
+request-detail#ALL
+---
+
+```
+
+## Output
+```bash
+REQ01|SCH01|Monday 08:00 -> Monday 10:00|R101->R102|2024/2025|odd|MENUNGGU
+REQ02|SCH02|Monday 10:00 -> Monday 08:00|R102->R101|2024/2025|odd|MENUNGGU
+
+REQ01|SCH01|Monday 08:00 -> Monday 10:00|R101->R102|2024/2025|odd|VALID
+REQ02|SCH02|Monday 10:00 -> Monday 08:00|R102->R101|2024/2025|odd|VALID
+
+REQ01|SCH01|Monday 08:00 -> Monday 10:00|R101->R102|2024/2025|odd|DISETUJUI
+REQ02|SCH02|Monday 10:00 -> Monday 08:00|R102->R101|2024/2025|odd|DISETUJUI
+
+```
