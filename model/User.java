@@ -13,7 +13,7 @@ public class User {
         this.email = email; // mengisi email user
     }
 
-    // method untuk mengambil id user
+    // method untuk memperoleh id user
     public String getId() { return id; }
 
     // method untuk mengambil nama user
