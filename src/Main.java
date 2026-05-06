@@ -6,7 +6,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        // Membuat object DAO untuk akses database
+        // Membuat object DAO untuk mengakses database
         UserDao userDao = new UserDao();
 
         // Mengambil semua data user dari database
