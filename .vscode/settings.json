@@ -1,6 +1,8 @@
 {
   "java.project.referencedLibraries": [
-    "lib/**/*.jar",
-    "d:\\DOWNLOAD\\mysql-connector-j-9.7.0\\mysql-connector-j-9.7.0\\mysql-connector-j-9.7.0.jar"
+    "d:\\SEMESTER 4\\PBO\\PRAKTIKUM\\t01-data-types-pbo-2526-ge-Arthasiregar\\pbojaya\\lib\\mysql-connector-j-9.7.0.jar"
+  ],
+  "java.project.sourcePaths": [
+    "."
   ]
 }
