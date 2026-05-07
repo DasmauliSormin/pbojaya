@@ -1,62 +1,97 @@
-package model; // class model untuk menyimpan data jadwal perkuliahan
+package model;
+// package = pengelompokan class agar rapi.
+// Class Jadwal berada dalam package "model".
 
 public class Jadwal {
+// public = class bisa diakses dari package lain.
+// class = blueprint/kerangka untuk membuat object Jadwal.
 
-    private String scheduleId;  // id jadwal
-    private String courseId;    // id mata kuliah
-    private String kelas;       // kelas (A,B,C dll)
-    private String lecturerId;  // id dosen
-    private String hari;        // hari perkuliahan
-    private String jam;         // jam perkuliahan
-    private Ruangan ruangan;    // object ruangan tempat kuliah
+    private String scheduleId;
+    // private = hanya bisa diakses di dalam class Jadwal saja (data dibuat aman).
+    // String = tipe data teks.
+    // scheduleId = ID unik jadwal (misalnya: JD001).
+
+    private String courseId;
+    // menyimpan ID mata kuliah (misalnya IF101).
+
+    private String kelas;
+    // menyimpan kelas (misalnya: IF-41-01).
+
+    private String lecturerId;
+    // menyimpan ID dosen pengajar.
+
+    private String hari;
+    // menyimpan hari kuliah (Senin, Selasa, dll).
+
+    private String jam;
+    // menyimpan jam kuliah (contoh: 08.00-10.00).
+
+    private Ruangan ruangan;
+    // Ruangan = tipe data OBJECT (class buatan sendiri).
+    // Menyimpan objek ruangan tempat kuliah berlangsung.
+    // Ini contoh RELASI antar class (Jadwal punya Ruangan).
+
 
     // constructor untuk membuat object jadwal
     public Jadwal(String scheduleId, String courseId, String kelas,
                   String lecturerId, String hari, String jam, Ruangan ruangan) {
+        // Constructor = dipanggil saat object Jadwal dibuat.
+        // Parameter berisi data yang wajib diisi saat membuat jadwal.
 
-        this.scheduleId = scheduleId; // menyimpan id jadwal
-        this.courseId = courseId;     // menyimpan id mata kuliah
-        this.kelas = kelas;           // menyimpan kelas
-        this.lecturerId = lecturerId; // menyimpan id dosen
-        this.hari = hari;             // menyimpan hari kuliah
-        this.jam = jam;               // menyimpan jam kuliah
-        this.ruangan = ruangan;       // menyimpan object ruangan
+        this.scheduleId = scheduleId;
+        // this = menunjuk ke atribut milik class.
+        // Mengisi atribut scheduleId dengan nilai dari parameter.
+
+        this.courseId = courseId;
+        this.kelas = kelas;
+        this.lecturerId = lecturerId;
+        this.hari = hari;
+        this.jam = jam;
+        this.ruangan = ruangan;
+        // semua atribut diisi saat object dibuat.
     }
 
-    // getter untuk mengambil id jadwal
-    public String getScheduleId() { return scheduleId; }
+    // ===== GETTER (mengambil data) =====
 
-    // getter untuk mengambil id mata kuliah
+    public String getScheduleId() { return scheduleId; }
+    // Getter = method untuk mengambil nilai scheduleId.
+
     public String getCourseId() { return courseId; }
 
-    // getter untuk mengambil kelas
     public String getKelas() { return kelas; }
 
-    // getter untuk mengambil id dosen
     public String getLecturerId() { return lecturerId; }
 
-    // getter untuk mengambil hari
     public String getHari() { return hari; }
 
-    // getter untuk mengambil jam
     public String getJam() { return jam; }
 
-    // getter untuk mengambil object ruangan
     public Ruangan getRuangan() { return ruangan; }
+    // Mengembalikan objek Ruangan.
+
+    // ===== SETTER (mengubah data) =====
 
     // method untuk mengubah hari jadwal
     public void setHari(String hari) { this.hari = hari; }
+    // void = tidak mengembalikan nilai.
+    // Setter untuk mengubah hari jadwal.
 
-    // method untuk mengubah jam jadwal
     public void setJam(String jam) { this.jam = jam; }
+    // Setter untuk mengubah jam jadwal.
 
-    // method untuk mengubah ruangan
     public void setRuangan(Ruangan r) { this.ruangan = r; }
+    // Setter untuk mengganti ruangan kuliah.
+
+    // ===== METHOD MENAMPILKAN INFO LENGKAP =====
 
     // method untuk menampilkan informasi jadwal lengkap
     public String getFullInfo() {
+        // Method ini mengembalikan String berisi semua info jadwal.
+
         return scheduleId + "|" + courseId + "|" + kelas + "|" +
                lecturerId + "|" + hari + " " + jam + "|" +
                ruangan.getRoomId();
+        // Menggabungkan semua data menjadi satu teks.
+        // ruangan.getRoomId() = memanggil method dari class Ruangan.
     }
 }

@@ -1,23 +1,47 @@
-package model; // package model untuk menyimpan class data mahasiswa
+package model;
+// package = tempat mengelompokkan class agar rapi.
+// Class Mahasiswa berada di package "model".
 
-public class Mahasiswa extends User { // class Mahasiswa merupakan turunan dari class User
+public class Mahasiswa extends User {
+// public = class bisa dipakai dari package lain.
+// class = blueprint / cetakan object Mahasiswa.
+// extends User = INHERITANCE (pewarisan).
+// Artinya Mahasiswa adalah turunan dari class User.
+// Jadi Mahasiswa otomatis punya atribut & method milik User.
 
-    private String programStudi; // menyimpan program studi mahasiswa
+    private String programStudi;
+    // private = hanya bisa diakses di dalam class Mahasiswa saja (data aman).
+    // String = tipe data teks.
+    // programStudi = menyimpan jurusan mahasiswa (contoh: Informatika).
+
 
     // constructor untuk membuat object Mahasiswa
     public Mahasiswa(String id, String name, String email, String programStudi) {
-        super(id, name, email); // memanggil constructor dari class User
-        this.programStudi = programStudi; // menyimpan program studi
+        // Constructor = method yang otomatis dipanggil saat object dibuat.
+        // Parameter = data yang wajib diisi saat membuat object Mahasiswa.
+
+        super(id, name, email);
+        // super = memanggil constructor milik class induk (User).
+        // Jadi id, name, email disimpan di class User.
+        // Ini bukti konsep INHERITANCE bekerja.
+
+        this.programStudi = programStudi;
+        // this = menunjuk atribut milik class Mahasiswa.
+        // Mengisi atribut programStudi dengan nilai dari parameter.
     }
 
-    // getter untuk mengambil program studi
-    public String getProgramStudi() { 
-        return programStudi; 
-    }
+    public String getProgramStudi() { return programStudi; }
+    // Getter = method untuk mengambil nilai programStudi.
+    // public = bisa diakses dari luar class.
+    // String = method mengembalikan teks.
 
     // method untuk menampilkan informasi mahasiswa
     public String getMahasiswaInfo() {
-        return "MHS | " + getUserInfo() + " | " + programStudi; 
-        // memanggil getUserInfo dari class User lalu menambahkan program studi
+        // Method untuk menampilkan info lengkap mahasiswa dalam bentuk teks.
+
+        return "MHS | " + getUserInfo() + " | " + programStudi;
+        // "MHS" = penanda bahwa ini data mahasiswa.
+        // getUserInfo() = method milik class User (warisan).
+        // programStudi = menambahkan info jurusan mahasiswa.
     }
 }

@@ -1,25 +1,61 @@
-package model; // package model untuk menyimpan class yang merepresentasikan data dalam sistem
+package model; 
+// package = tempat pengelompokan class agar rapi.
+// Class Admin berada di dalam package bernama "model".
 
-public class Admin extends User { // class Admin merupakan turunan dari class User (inheritance)
+public class Admin extends User { 
+// public = bisa diakses dari package lain.
+// class = blueprint/kerangka untuk membuat objek.
+// Admin = nama class.
+// extends User = Admin adalah TURUNAN (inheritance) dari class User.
+// Artinya Admin otomatis punya atribut & method dari User.
 
     // constructor Admin
     public Admin(String id, String name, String email) {
-        super(id, name, email); // memanggil constructor dari class User
+        // Constructor = method khusus yang dipanggil saat object dibuat.
+        // public = bisa dipanggil dari mana saja.
+        // Admin(...) = nama constructor HARUS sama dengan nama class.
+        // String = tipe data teks.
+        // id, name, email = parameter yang dikirim saat membuat object Admin.
+
+        super(id, name, email);
+        // super = memanggil constructor milik class induk (User).
+        // Jadi data id, name, email disimpan di class User.
     }
 
     // method untuk memvalidasi permintaan swap jadwal
     public void validateRequest(SwapRequest request) {
-        request.setStatus("VALID"); // mengubah status request menjadi VALID
+        // public = bisa dipanggil dari class lain.
+        // void = method TIDAK mengembalikan nilai.
+        // validateRequest = nama method.
+        // SwapRequest = tipe data object (class buatan sendiri).
+        // request = parameter berupa objek SwapRequest.
+
+        request.setStatus("VALID");
+        // memanggil method setStatus() dari objek request.
+        // status permintaan diubah menjadi "VALID".
     }
 
     // method untuk menyetujui permintaan swap jadwal
     public void approveRequest(SwapRequest request) {
-        request.applyReschedule(); // menerapkan perubahan jadwal yang diminta
-        request.setStatus("DISETUJUI"); // mengubah status request menjadi DISETUJUI
+        // method untuk MENYETUJUI permintaan tukar jadwal.
+
+        request.applyReschedule();
+        // memanggil method applyReschedule() dari SwapRequest.
+        // biasanya method ini akan menukar jadwal kuliah.
+
+        request.setStatus("DISETUJUI");
+        // setelah ditukar, status diubah menjadi DISETUJUI.
     }
 
     // method untuk menampilkan informasi admin
     public String getAdminInfo() {
-        return "ADMIN | " + getUserInfo(); // memanggil method getUserInfo dari class User
+        // public = bisa dipanggil dari mana saja.
+        // String = method mengembalikan teks.
+        // getAdminInfo() = method untuk menampilkan info admin.
+
+        return "ADMIN | " + getUserInfo();
+        // return = mengembalikan nilai.
+        // getUserInfo() = method dari class User (class induk).
+        // hasilnya digabung dengan tulisan "ADMIN | ".
     }
 }
