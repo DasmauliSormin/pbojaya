@@ -1,7 +1,6 @@
 package service; // class ini berada di package service
 
 import model.SwapRequest;   // import class SwapRequest dari package model
-import model.Ruangan;       // import class Ruangan dari package model
 import java.util.ArrayList; // import ArrayList untuk menyimpan daftar request swap
 import java.util.HashMap;   // import HashMap untuk mapping requestId -> SwapRequest
 
@@ -153,11 +152,7 @@ public class SwapService {
                 if (!other.getRequestId().equals(req.getRequestId())
                         && other.getStatus().equals("MENUNGGU")) {
                     // Ambil slot tujuan request lain
-                    String otherRoomId = other.getRuangan().getRoomId();
-                    String otherHari   = other.getHari();
-                    String otherJam    = other.getJam();
                     // Buat key slot tujuan request lain
-                    String otherKey = otherRoomId + "_" + otherHari + "_" + otherJam;
                     // Jika slot tujuan request lain == slot tujuan request ini
                     // berarti keduanya saling tukar -> flag true
                     // (logika swap silang: REQ01 mau R102, REQ02 mau R101)
@@ -224,7 +219,6 @@ public class SwapService {
         // getRuangan() -> ruanganBaru (dari super() di constructor SwapRequest)
         // getHari()    -> hariBaru
         // getJam()     -> jamBaru
-        String roomIdTujuan = req.getRuangan().getRoomId(); // id ruangan baru
         String hariTujuan   = req.getHari();                // hari baru
         String jamTujuan    = req.getJam();                 // jam baru
 
