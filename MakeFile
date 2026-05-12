@@ -1,0 +1,5 @@
+compile :
+	javac -cp ".;lib/mysql-connector-j-9.7.0.jar" model/*.java dao/*.java mapper/*.java service/*.java src/*.java
+
+run :
+	java -cp ".;lib/mysql-connector-j-9.7.0.jar" src.Main
