@@ -9,15 +9,15 @@ import java.util.HashMap;   // import HashMap untuk mapping requestId -> SwapReq
 // Tanggung jawab: logic swap jadwal dan ruangan perkuliahan
 // Alur status: MENUNGGU -> VALID -> DISETUJUI
 //
-// Catatan: SwapService hanya memakai method yang sudah ada di SwapRequest:
-//   - getRequestId()  -> ID request
-//   - getStatus()     -> status saat ini
-//   - setStatus()     -> ubah status
-//   - getHari()       -> hari BARU (diwarisi dari Peminjaman, diisi hariBaru)
-//   - getJam()        -> jam BARU (diwarisi dari Peminjaman, diisi jamBaru)
-//   - getRuangan()    -> ruangan BARU (diwarisi dari Peminjaman, diisi ruanganBaru)
+// Method yang dipakai dari SwapRequest:
+//   - getRequestId()    -> ID request
+//   - getStatus()       -> status saat ini
+//   - setStatus()       -> ubah status
+//   - getHari()         -> hari BARU (diwarisi dari Peminjaman)
+//   - getJam()          -> jam BARU (diwarisi dari Peminjaman)
+//   - getRuangan()      -> ruangan BARU (diwarisi dari Peminjaman)
 //   - applyReschedule() -> terapkan perubahan ke jadwal lama
-//   - getDetail()     -> tampilkan detail sesuai format README
+//   - getDetail()       -> tampilkan detail sesuai format README
 // ============================================================
 public class SwapService {
 
@@ -26,15 +26,14 @@ public class SwapService {
     // ----------------------------------------------------------
 
     // ArrayList untuk menyimpan semua SwapRequest yang masuk
-    // Urutan penting: request diproses sesuai urutan masuk (FIFO)
+    // Urutan terjaga sesuai urutan masuk (FIFO)
     private ArrayList<SwapRequest> daftarRequest = new ArrayList<>();
 
     // HashMap untuk akses cepat berdasarkan requestId
     // key = requestId (contoh: "REQ01"), value = objek SwapRequest
-    // Berguna agar tidak perlu loop ArrayList setiap kali cari 1 request
     private HashMap<String, SwapRequest> requestMap = new HashMap<>();
 
-    // Referensi ke BookingService untuk cek & update ketersediaan ruangan
+    // Referensi ke BookingService untuk cek ketersediaan ruangan
     // SwapService bergantung pada BookingService (Dependency Injection)
     private BookingService bookingService;
 
@@ -59,18 +58,17 @@ public class SwapService {
 
         // Cek apakah requestId sudah pernah terdaftar sebelumnya
         if (requestMap.containsKey(requestId)) {
-            // Tolak duplikat: ID yang sama tidak boleh didaftarkan dua kali
             System.out.println("[SWAP] Request " + requestId + " sudah terdaftar sebelumnya.");
-            return; // keluar dari method
+            return; // keluar dari method, tolak duplikat
         }
 
         // Set status awal request menjadi MENUNGGU
         request.setStatus("MENUNGGU");
 
-        // Simpan ke ArrayList (untuk iterasi berurutan / FIFO)
+        // Simpan ke ArrayList untuk iterasi berurutan
         daftarRequest.add(request);
 
-        // Simpan ke HashMap (untuk akses cepat via requestId)
+        // Simpan ke HashMap untuk akses cepat via requestId
         requestMap.put(requestId, request);
 
         System.out.println("[SWAP] Request " + requestId + " berhasil didaftarkan. Status: MENUNGGU");
@@ -81,14 +79,13 @@ public class SwapService {
     // Memvalidasi SEMUA request yang berstatus MENUNGGU
     // Dipanggil saat command: validation-process
     //
-    // Catatan penting tentang getter yang dipakai:
+    // Catatan getter yang dipakai:
     //   SwapRequest extends Peminjaman, constructor SwapRequest memanggil:
     //   super(requestId, ruanganBaru, hariBaru, jamBaru)
-    //   Artinya:
+    //   Sehingga:
     //   - getRuangan() -> mengembalikan ruanganBaru
     //   - getHari()    -> mengembalikan hariBaru
     //   - getJam()     -> mengembalikan jamBaru
-    //   Getter ini diwarisi dari Peminjaman, sudah tersedia tanpa perlu getter baru
     //
     // Logika validasi:
     //   1. Ruangan tujuan tidak boleh bentrok dengan jadwal lain
@@ -99,34 +96,25 @@ public class SwapService {
 
         System.out.println("[SWAP] Memulai proses validasi semua request MENUNGGU...");
 
-        // HashMap sementara untuk deteksi swap silang (saling tukar ruangan)
-        // key   = "roomId_hari_jam" yang akan DILEPAS oleh suatu request
-        // value = requestId yang melepas ruangan tersebut
+        // HashMap sementara untuk mencatat slot TUJUAN setiap request
+        // key   = "roomId_hari_jam" slot tujuan
+        // value = requestId yang menargetkan slot tersebut
         HashMap<String, String> ruanganAkanDilepas = new HashMap<>();
 
-        // PASS 1: Catat semua slot yang akan DILEPAS
-        // Masalah: kita tidak punya getter jadwalLama, tapi kita bisa pakai
-        // BookingService untuk tahu slot mana yang sedang terpakai
-        // Pendekatan: setiap request punya ruangan BARU (via getRuangan())
-        // slot yang dilepas adalah slot LAMA di BookingService
-        // Karena kita tidak bisa akses jadwalLama, kita catat ruangan BARU
-        // yang diminta setiap request, lalu cek silang antar request
+        // PASS 1: Catat slot tujuan semua request MENUNGGU
         for (SwapRequest req : daftarRequest) { // loop seluruh ArrayList
             if (req.getStatus().equals("MENUNGGU")) {
 
-                // getRuangan() -> ruanganBaru (dari super() di constructor SwapRequest)
-                // getHari()    -> hariBaru
-                // getJam()     -> jamBaru
-                // Ini adalah slot TUJUAN yang diminta request ini
+                // getRuangan() -> ruanganBaru, getHari() -> hariBaru, getJam() -> jamBaru
+                // ketiganya diwarisi dari Peminjaman via super() di constructor SwapRequest
                 String roomIdTujuan = req.getRuangan().getRoomId();
                 String hariTujuan   = req.getHari();
                 String jamTujuan    = req.getJam();
 
-                // Buat key slot tujuan: "R102_Monday_10:00"
+                // Buat key slot tujuan, contoh: "R102_Monday_10:00"
                 String keyTujuan = roomIdTujuan + "_" + hariTujuan + "_" + jamTujuan;
 
-                // Catat bahwa request ini MEMBUTUHKAN slot ini
-                // Sekaligus ini berarti request lain yang punya slot ini akan melepasnya
+                // Catat slot tujuan beserta requestId yang menargetkannya
                 ruanganAkanDilepas.put(keyTujuan, req.getRequestId());
             }
         }
@@ -137,42 +125,35 @@ public class SwapService {
                 continue; // lewati request yang sudah diproses
             }
 
-            // Ambil info ruangan TUJUAN yang diminta request ini
-            String roomIdTujuan = req.getRuangan().getRoomId(); // ruangan baru
-            String hariTujuan   = req.getHari();                // hari baru
-            String jamTujuan    = req.getJam();                 // jam baru
+            // Ambil info ruangan tujuan request ini
+            String roomIdTujuan = req.getRuangan().getRoomId();
+            String hariTujuan   = req.getHari();
+            String jamTujuan    = req.getJam();
 
             // Buat key slot tujuan untuk dicek
             String keyTujuan = roomIdTujuan + "_" + hariTujuan + "_" + jamTujuan;
 
-            // Cek apakah ada request LAIN yang juga menargetkan slot ini
-            // Jika ada, berarti ada yang akan melepas slot ini -> swap silang
-            boolean adaYangMelepas = false; // flag default: tidak ada yang melepas
+            // Cek apakah ada request LAIN yang menargetkan slot yang sama
+            // Jika ada -> swap silang -> kedua request saling melepas ruangan
+            boolean adaYangMelepas = false; // flag default: tidak ada swap silang
             for (SwapRequest other : daftarRequest) { // loop untuk cek request lain
                 if (!other.getRequestId().equals(req.getRequestId())
                         && other.getStatus().equals("MENUNGGU")) {
-                    // Ambil slot tujuan request lain
-                    // Buat key slot tujuan request lain
-                    // Jika slot tujuan request lain == slot tujuan request ini
-                    // berarti keduanya saling tukar -> flag true
-                    // (logika swap silang: REQ01 mau R102, REQ02 mau R101)
-                    // kita cukup cek apakah ada request lain yang menargetkan
-                    // slot yang sama dengan slot ASAL kita (yakni slot tujuan request ini
-                    // adalah slot tujuan orang lain, dan sebaliknya)
+                    // Cek apakah slot tujuan ini diincar request lain
                     if (ruanganAkanDilepas.containsKey(keyTujuan)
                             && !ruanganAkanDilepas.get(keyTujuan).equals(req.getRequestId())) {
-                        adaYangMelepas = true; // ada request lain yang menargetkan slot ini
+                        adaYangMelepas = true; // swap silang ditemukan
                         break; // tidak perlu lanjut loop
                     }
                 }
             }
 
-            // Cek apakah ruangan tujuan saat ini bebas di BookingService
+            // Cek apakah ruangan tujuan bebas di BookingService
             boolean ruanganBebas = bookingService.isRuanganTersedia(
                     roomIdTujuan, hariTujuan, jamTujuan);
 
             if (ruanganBebas || adaYangMelepas) {
-                // VALID: ruangan kosong ATAU ada swap silang
+                // VALID: ruangan kosong ATAU ada swap silang antar request
                 req.setStatus("VALID");
                 System.out.println("[SWAP] " + req.getRequestId() + " -> VALID");
             } else {
@@ -208,38 +189,35 @@ public class SwapService {
             return;
         }
 
-        // Validasi: hanya request VALID yang bisa disetujui
+        // Validasi: hanya request berstatus VALID yang bisa disetujui
         if (!req.getStatus().equals("VALID")) {
             System.out.println("[SWAP] Request " + requestId
                     + " tidak bisa disetujui. Status saat ini: " + req.getStatus());
             return;
         }
 
-        // Ambil info ruangan tujuan dari SwapRequest
-        // getRuangan() -> ruanganBaru (dari super() di constructor SwapRequest)
-        // getHari()    -> hariBaru
-        // getJam()     -> jamBaru
-        String hariTujuan   = req.getHari();                // hari baru
-        String jamTujuan    = req.getJam();                 // jam baru
+        // Ambil info ruangan tujuan
+        // getRuangan() -> ruanganBaru, getHari() -> hariBaru, getJam() -> jamBaru
+        String hariTujuan = req.getHari(); // hari baru
+        String jamTujuan  = req.getJam();  // jam baru
 
         // --- LANGKAH 1: Daftarkan booking ruangan TUJUAN ---
         // tambahPeminjaman(id, ruangan, hari, jam)
         boolean berhasil = bookingService.tambahPeminjaman(
-                req.getRequestId(),  // gunakan requestId sebagai id peminjaman baru
-                req.getRuangan(),    // ruangan tujuan (ruanganBaru)
-                hariTujuan,          // hari baru
-                jamTujuan            // jam baru
+                req.getRequestId(), // requestId sebagai id peminjaman baru
+                req.getRuangan(),   // ruangan tujuan (ruanganBaru)
+                hariTujuan,         // hari baru
+                jamTujuan           // jam baru
         );
 
         if (!berhasil) {
-            // Booking baru gagal (ada konflik mendadak)
+            // Booking gagal karena ada konflik mendadak
             System.out.println("[SWAP] Approve gagal: ruangan tujuan tidak tersedia saat approve.");
             return;
         }
 
         // --- LANGKAH 2: Terapkan perubahan ke objek Jadwal ---
-        // applyReschedule() sudah ada di class SwapRequest
-        // Mengubah hari, jam, dan ruangan di jadwalLama secara langsung
+        // applyReschedule() mengubah hari, jam, ruangan di jadwalLama
         req.applyReschedule();
 
         // --- LANGKAH 3: Update status menjadi DISETUJUI ---
@@ -258,13 +236,12 @@ public class SwapService {
     public void tampilkanDetail(String requestId) {
 
         if (requestId.equalsIgnoreCase("ALL")) {
-            // Tampilkan SEMUA request dengan loop ArrayList (urutan masuk terjaga)
+            // Tampilkan SEMUA request, loop ArrayList agar urutan masuk terjaga
             for (SwapRequest req : daftarRequest) {
-                // getDetail() sudah ada di class SwapRequest
-                System.out.println(req.getDetail());
+                System.out.println(req.getDetail()); // getDetail() sudah ada di SwapRequest
             }
         } else {
-            // Tampilkan SATU request: cari via HashMap (cepat, O(1))
+            // Tampilkan SATU request, cari via HashMap (O(1))
             SwapRequest req = requestMap.get(requestId);
 
             if (req == null) {
@@ -272,8 +249,7 @@ public class SwapService {
                 return;
             }
 
-            // getDetail() sudah ada di class SwapRequest
-            System.out.println(req.getDetail());
+            System.out.println(req.getDetail()); // getDetail() sudah ada di SwapRequest
         }
     }
 
